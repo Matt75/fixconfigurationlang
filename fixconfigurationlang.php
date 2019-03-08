@@ -113,7 +113,7 @@ class fixconfigurationlang extends Module
                 . '&configure=' . $this->name,
         ]);
 
-        return $this->context->smarty->fetch($this->local_path.'views/templates/admin/configure.tpl');
+        return $this->context->smarty->fetch($this->local_path . 'views/templates/admin/configure.tpl');
     }
 
     /**
@@ -166,7 +166,7 @@ class fixconfigurationlang extends Module
                 $values = [];
                 foreach (Language::getIDs() as $idLang) {
                     $value = Configuration::get($langKey, $idLang);
-                    $values[$idLang] = $value ? $value : '';
+                    $values[$idLang] = empty($value) ? ' ' : $value;
                 }
                 $fixedLangKeys[$langKey] = Configuration::updateValue($langKey, $values);
             }
