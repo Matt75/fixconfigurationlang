@@ -35,7 +35,7 @@ class fixconfigurationlang extends Module
     public function __construct()
     {
         $this->name = 'fixconfigurationlang';
-        $this->version = '1.0.1';
+        $this->version = '1.0.2';
         $this->author = 'Matt75';
         $this->bootstrap = true;
         parent::__construct();
