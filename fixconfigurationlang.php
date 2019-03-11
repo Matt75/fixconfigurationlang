@@ -163,10 +163,11 @@ class fixconfigurationlang extends Module
 
         foreach ($this->checkedLangKeys as $langKey => $isLangKey) {
             if (!$isLangKey) {
+                $value = Configuration::get($langKey);
+                Configuration::deleteByName($langKey);
                 $values = [];
                 foreach (Language::getIDs() as $idLang) {
-                    $value = Configuration::get($langKey, $idLang);
-                    $values[$idLang] = empty($value) ? ' ' : $value;
+                    $values[$idLang] = empty($value) ? '' : $value;
                 }
                 $fixedLangKeys[$langKey] = Configuration::updateValue($langKey, $values);
             }
