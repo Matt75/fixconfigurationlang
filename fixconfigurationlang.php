@@ -35,7 +35,7 @@ class fixconfigurationlang extends Module
     public function __construct()
     {
         $this->name = 'fixconfigurationlang';
-        $this->version = '1.0.2';
+        $this->version = '1.0.3';
         $this->author = 'Matt75';
         $this->bootstrap = true;
         parent::__construct();
@@ -163,13 +163,14 @@ class fixconfigurationlang extends Module
 
         foreach ($this->checkedLangKeys as $langKey => $isLangKey) {
             if (!$isLangKey) {
-                $value = Configuration::get($langKey);
-                Configuration::deleteByName($langKey);
-                $values = [];
-                foreach (Language::getIDs() as $idLang) {
-                    $values[$idLang] = empty($value) ? '' : $value;
-                }
-                $fixedLangKeys[$langKey] = Configuration::updateValue($langKey, $values);
+                $query = 'INSERT INTO `' . _DB_PREFIX_ . 'configuration_lang` (`id_configuration`, `id_lang`, `value`)
+                SELECT `id_configuration`, l.`id_lang`, `value` 
+                FROM `' . _DB_PREFIX_ . 'configuration` c
+                INNER JOIN `' . _DB_PREFIX_ . 'lang_shop` l on l.`id_shop` = coalesce(c.`id_shop`, 1)
+                WHERE `name` = "' . $langKey . '" AND NOT EXISTS (SELECT 1 FROM `' . _DB_PREFIX_ . 'configuration_lang` WHERE `id_configuration` = c.`id_configuration`)';
+
+                $fixedLangKeys[$langKey] = Db::getInstance()->execute($query)
+                    && Db::getInstance()->Affected_Rows() > 0;
             }
         }
 
