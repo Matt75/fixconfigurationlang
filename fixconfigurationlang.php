@@ -1,10 +1,10 @@
 <?php
 /**
- * 2007-2019 PrestaShop.
+ * 2007-2019 PrestaShop SA and Contributors
  *
  * NOTICE OF LICENSE
  *
- * This source file is subject to the Academic Free License 3.0 (AFL-3.0)
+ * This source file is subject to the Academic Free License (AFL 3.0)
  * that is bundled with this package in the file LICENSE.txt.
  * It is also available through the world-wide-web at this URL:
  * https://opensource.org/licenses/AFL-3.0
@@ -16,11 +16,11 @@
  *
  * Do not edit or add to this file if you wish to upgrade PrestaShop to newer
  * versions in the future. If you wish to customize PrestaShop for your
- * needs please refer to http://www.prestashop.com for more information.
+ * needs please refer to https://www.prestashop.com for more information.
  *
  * @author    PrestaShop SA <contact@prestashop.com>
- * @copyright 2007-2019 PrestaShop SA
- * @license   https://opensource.org/licenses/AFL-3.0 Academic Free License 3.0 (AFL-3.0)
+ * @copyright 2007-2019 PrestaShop SA and Contributors
+ * @license   https://opensource.org/licenses/AFL-3.0  Academic Free License (AFL 3.0)
  * International Registered Trademark & Property of PrestaShop SA
  */
 
@@ -35,24 +35,25 @@ class fixconfigurationlang extends Module
     public function __construct()
     {
         $this->name = 'fixconfigurationlang';
-        $this->version = '1.0.3';
+        $this->version = '1.0.4';
         $this->author = 'Matt75';
         $this->bootstrap = true;
-        parent::__construct();
-        $this->displayName = $this->l('Fix configuration_lang');
-        $this->description = $this->l('Adds missing configuration multi language keys');
+        $this->need_instance = 0;
         $this->ps_versions_compliancy = [
             'min' => '1.7.0.0',
-            'max' => _PS_VERSION_
+            'max' => '1.7.99.99',
         ];
+
+        parent::__construct();
+
+        $this->displayName = $this->l('Fix configuration_lang');
+        $this->description = $this->l('Adds missing configuration multi language keys');
     }
 
     /**
      * Retrieve content for module configuration page
      *
      * @return string
-     * @throws SmartyException
-     * @throws PrestaShopException
      */
     public function getContent()
     {
@@ -71,7 +72,7 @@ class fixconfigurationlang extends Module
     {
         $output = '';
 
-        if (Tools::isSubmit('submit'.$this->name)) {
+        if (Tools::isSubmit('submit' . $this->name)) {
             $fixedLangKeys = $this->addMissingLangValues();
             if (!empty($fixedLangKeys)) {
                 foreach ($fixedLangKeys as $langKey => $isFixed) {
@@ -99,8 +100,6 @@ class fixconfigurationlang extends Module
      * Display content for module configuration page
      *
      * @return string
-     * @throws SmartyException
-     * @throws PrestaShopException
      */
     private function displayContent()
     {
@@ -162,7 +161,10 @@ class fixconfigurationlang extends Module
         $fixedLangKeys = [];
 
         foreach ($this->checkedLangKeys as $langKey => $isLangKey) {
-            if (!$isLangKey) {
+            if (false === Configuration::hasKey($langKey)) {
+                Configuration::updateValue($langKey, '');
+            }
+            if (false === $isLangKey) {
                 $query = 'INSERT INTO `' . _DB_PREFIX_ . 'configuration_lang` (`id_configuration`, `id_lang`, `value`)
                 SELECT `id_configuration`, l.`id_lang`, `value` 
                 FROM `' . _DB_PREFIX_ . 'configuration` c
